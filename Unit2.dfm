@@ -12,37 +12,42 @@ object Form2: TForm2
   Font.Style = []
   OnCreate = FormCreate
   TextHeight = 15
-  object imgCarcasa: TImage
-    Left = 0
-    Top = 93
-    Width = 81
-    Height = 77
-  end
   object lblStatus: TLabel
     Left = 464
     Top = 143
     Width = 3
     Height = 15
   end
-  object imgBaterie: TImage
-    Left = 0
-    Top = 176
-    Width = 81
-    Height = 81
-  end
-  object shpBec: TShape
+  object shpBulb: TShape
     Left = 8
     Top = 263
     Width = 73
     Height = 74
     Shape = stCircle
   end
-  object shpCapac: TShape
+  object shpCarcasa: TShape
     Left = 8
-    Top = 360
+    Top = 121
     Width = 65
     Height = 65
-    Shape = stRoundRect
+  end
+  object shpBaterie: TShape
+    Left = 8
+    Top = 192
+    Width = 65
+    Height = 65
+  end
+  object imgCapac: TImage
+    Left = 8
+    Top = 343
+    Width = 105
+    Height = 105
+  end
+  object shpBase: TShape
+    Left = 8
+    Top = 8
+    Width = 65
+    Height = 65
   end
   object btnStart: TButton
     Left = 448

@@ -9,26 +9,28 @@ uses
 type
   TForm2 = class(TForm)
     tmrMain: TTimer;
-    imgCarcasa: TImage;
     btnStart: TButton;
     lblStatus: TLabel;
-    imgBaterie: TImage;
     tmrBratA: TTimer;
-    shpBec: TShape;
     tmrBratB: TTimer;
-    shpCapac: TShape;
     tmrBratC: TTimer;
+    shpCarcasa: TShape;
+    shpBaterie: TShape;
+    shpBulb: TShape;
+    shpBase: TShape;
+    imgCapac: TImage;
     procedure FormCreate(Sender: TObject);
     procedure btnStartClick(Sender: TObject);
     procedure tmrMainTimer(Sender: TObject);
     procedure tmrBratATimer(Sender: TObject);
     procedure tmrBratBTimer(Sender: TObject);
     procedure tmrBratCTimer(Sender: TObject);
+    procedure DesenCapacTrapez;
   private
     FStep: Integer;
     FPosEtapa1, FPosEtapa2, FPosEtapa3: Integer;
     FCenterY: Integer;
-    FBaterieMontata, FBecMontat, FCapacMontat: Boolean;
+    FBaterieMontata, FLedMontat, FCapacMontat: Boolean;
   public
   end;
 
@@ -41,87 +43,80 @@ implementation
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
-  BorderStyle := bsSingle;
   Width := 1600;
   Height := 900;
   Color := clWhite;
   Position := poScreenCenter;
 
-  // Stații de lucru
   FPosEtapa1 := 400;
   FPosEtapa2 := 700;
   FPosEtapa3 := 1000;
   FCenterY := Height div 2;
-  FStep := 0;
 
   // Carcasa
-  imgCarcasa.Visible := False;
-  imgCarcasa.Width := 40;
-  imgCarcasa.Height := 40;
-  imgCarcasa.Top := FCenterY;
+  shpCarcasa.Width := 40;
+  shpCarcasa.Height := 100;
+  shpCarcasa.Brush.Color := clGray;
+  shpCarcasa.Visible := False;
 
   // Baterie
-  imgBaterie.Visible := False;
-  imgBaterie.Width := 20;
-  imgBaterie.Height := 40;
-  imgBaterie.Top := 50;
-  imgBaterie.Left := 10;
-  imgBaterie.Canvas.Brush.Color := clLime;
-  imgBaterie.Canvas.FillRect(Rect(0, 0, imgBaterie.Width, imgBaterie.Height));
-  tmrBratA.Enabled := False;
+  shpBaterie.Width := 20;
+  shpBaterie.Height := 40;
+  shpBaterie.Brush.Color := clGreen;
+  shpBaterie.Visible := False;
 
-  // Bec
-  shpBec.Visible := False;
-  shpBec.Width := 20;
-  shpBec.Height := 20;
-  shpBec.Shape := stCircle;
-  shpBec.Brush.Color := clYellow;
-  shpBec.Top := 50;
-  shpBec.Left := 10;
-  tmrBratB.Enabled := False;
+  // Bec - bulb
+  shpBulb.Width := 20;
+  shpBulb.Height := 20;
+  shpBulb.Shape := stCircle;
+  shpBulb.Brush.Color := clYellow;
+  shpBulb.Visible := False;
 
-  // Capac
-  shpCapac.Visible := False;
-  shpCapac.Width := 40;
-  shpCapac.Height := 10;
-  shpCapac.Shape := stRoundRect;
-  shpCapac.Brush.Color := clBlue;
-  shpCapac.Top := 50;
-  shpCapac.Left := 10;
-  tmrBratC.Enabled := False;
+  // Bec - bază
+  shpBase.Width := 12;
+  shpBase.Height := 10;
+  shpBase.Shape := stRectangle;
+  shpBase.Brush.Color := clSilver;
+  shpBase.Visible := False;
+
+  // Capac (trapez)
+  imgCapac.Width := 60;
+  imgCapac.Height := 20;
+  imgCapac.Visible := False;
 
   // UI
   btnStart.Left := 20;
   btnStart.Top := Height - 80;
-  btnStart.Caption := 'Start';
-
   lblStatus.Left := 120;
   lblStatus.Top := btnStart.Top + 10;
-  lblStatus.Caption := '';
 end;
 
 procedure TForm2.btnStartClick(Sender: TObject);
 begin
-  // Resetare
   FStep := 1;
   FBaterieMontata := False;
-  FBecMontat := False;
+  FLedMontat := False;
   FCapacMontat := False;
 
-  imgCarcasa.Left := 0;
-  imgCarcasa.Top := FCenterY;
-  imgCarcasa.Visible := True;
-  imgCarcasa.Canvas.Brush.Color := clRed;
-  imgCarcasa.Canvas.FillRect(Rect(0, 0, imgCarcasa.Width, imgCarcasa.Height));
+  // Carcasa
+  shpCarcasa.Left := 0;
+  shpCarcasa.Top := FCenterY;
+  shpCarcasa.Visible := True;
+  shpCarcasa.BringToFront;
 
-  imgBaterie.Visible := False;
-  imgBaterie.Top := 50;
+  // Baterie
+  shpBaterie.Visible := False;
+  shpBaterie.Top := 50;
 
-  shpBec.Visible := False;
-  shpBec.Top := 50;
+  // Bec
+  shpBulb.Visible := False;
+  shpBulb.Top := 50;
+  shpBase.Visible := False;
+  shpBase.Top := 50;
 
-  shpCapac.Visible := False;
-  shpCapac.Top := 50;
+  // Capac
+  imgCapac.Visible := False;
+  imgCapac.Top := 50;
 
   lblStatus.Caption := 'Carcasa se deplasează spre prima stație...';
   tmrMain.Enabled := True;
@@ -129,49 +124,57 @@ end;
 
 procedure TForm2.tmrMainTimer(Sender: TObject);
 begin
-  // Mișcă lanterna
-  imgCarcasa.Left := imgCarcasa.Left + 5;
+  shpCarcasa.Left := shpCarcasa.Left + 5;
 
   if FBaterieMontata then
-    imgBaterie.Left := imgCarcasa.Left + 10;
-  if FBecMontat then
-    shpBec.Left := imgCarcasa.Left + 10;
+    shpBaterie.Left := shpCarcasa.Left + 10;
+
+  if FLedMontat then
+  begin
+    shpBulb.Left := shpCarcasa.Left + 10;
+    shpBase.Left := shpBulb.Left + 4;
+  end;
+
   if FCapacMontat then
-    shpCapac.Left := imgCarcasa.Left;
+    imgCapac.Left := shpCarcasa.Left - 10;
 
   case FStep of
     1:
-      if imgCarcasa.Left >= FPosEtapa1 then
+      if shpCarcasa.Left >= FPosEtapa1 then
       begin
         tmrMain.Enabled := False;
-        lblStatus.Caption := 'Carcasa a ajuns la stația de baterie.';
-        imgBaterie.Visible := True;
-        imgBaterie.Top := 50;
-        imgBaterie.Left := imgCarcasa.Left + 10;
+        lblStatus.Caption := 'Stație baterie.';
+        shpBaterie.Visible := True;
+        shpBaterie.Left := shpCarcasa.Left + 10;
+        shpBaterie.Top := 50;
         tmrBratA.Enabled := True;
       end;
     2:
-      if imgCarcasa.Left >= FPosEtapa2 then
+      if shpCarcasa.Left >= FPosEtapa2 then
       begin
         tmrMain.Enabled := False;
-        lblStatus.Caption := 'Carcasa a ajuns la stația de bec.';
-        shpBec.Visible := True;
-        shpBec.Top := 50;
-        shpBec.Left := imgCarcasa.Left + 10;
+        lblStatus.Caption := 'Stație LED.';
+        shpBulb.Visible := True;
+        shpBase.Visible := True;
+        shpBulb.Left := shpCarcasa.Left + 10;
+        shpBulb.Top := 50;
+        shpBase.Left := shpBulb.Left + 4;
+        shpBase.Top := shpBulb.Top + shpBulb.Height;
         tmrBratB.Enabled := True;
       end;
     3:
-      if imgCarcasa.Left >= FPosEtapa3 then
+      if shpCarcasa.Left >= FPosEtapa3 then
       begin
         tmrMain.Enabled := False;
-        lblStatus.Caption := 'Carcasa a ajuns la stația de capac.';
-        shpCapac.Visible := True;
-        shpCapac.Top := 50;
-        shpCapac.Left := imgCarcasa.Left;
+        lblStatus.Caption := 'Stație capac.';
+        imgCapac.Left := shpCarcasa.Left - 10;
+        imgCapac.Top := 50;
+        imgCapac.Visible := True;
+        DesenCapacTrapez;
         tmrBratC.Enabled := True;
       end;
     4:
-      if imgCarcasa.Left >= Width then
+      if shpCarcasa.Left > Width then
       begin
         tmrMain.Enabled := False;
         lblStatus.Caption := 'Lanterna a ieșit de pe linia de producție!';
@@ -181,13 +184,18 @@ end;
 
 procedure TForm2.tmrBratATimer(Sender: TObject);
 begin
-  if imgBaterie.Top < imgCarcasa.Top then
-    imgBaterie.Top := imgBaterie.Top + 5
+  if shpBaterie.Top < shpCarcasa.Top then
+    shpBaterie.Top := shpBaterie.Top + 5
   else
   begin
     tmrBratA.Enabled := False;
     lblStatus.Caption := 'Bateria a fost montată.';
     FBaterieMontata := True;
+
+    // Trimite bateria în spate, carcasa în față
+    shpBaterie.SendToBack;
+    shpCarcasa.BringToFront;
+
     FStep := 2;
     tmrMain.Enabled := True;
   end;
@@ -195,13 +203,16 @@ end;
 
 procedure TForm2.tmrBratBTimer(Sender: TObject);
 begin
-  if shpBec.Top < imgCarcasa.Top then
-    shpBec.Top := shpBec.Top + 5
+  if shpBulb.Top < shpCarcasa.Top then
+  begin
+    shpBulb.Top := shpBulb.Top + 5;
+    shpBase.Top := shpBulb.Top + shpBulb.Height;
+  end
   else
   begin
     tmrBratB.Enabled := False;
-    lblStatus.Caption := 'Becul LED a fost montat.';
-    FBecMontat := True;
+    lblStatus.Caption := 'Becul a fost montat.';
+    FLedMontat := True;
     FStep := 3;
     tmrMain.Enabled := True;
   end;
@@ -209,15 +220,33 @@ end;
 
 procedure TForm2.tmrBratCTimer(Sender: TObject);
 begin
-  if shpCapac.Top + shpCapac.Height < imgCarcasa.Top then
-    shpCapac.Top := shpCapac.Top + 5
+  if imgCapac.Top + imgCapac.Height < shpCarcasa.Top then
+    imgCapac.Top := imgCapac.Top + 5
   else
   begin
     tmrBratC.Enabled := False;
-    lblStatus.Caption := 'Capacul a fost montat. Se deplasează spre ieșire...';
+    lblStatus.Caption := 'Capacul a fost montat.';
     FCapacMontat := True;
     FStep := 4;
     tmrMain.Enabled := True;
+  end;
+end;
+
+procedure TForm2.DesenCapacTrapez;
+var
+  Points: array[0..3] of TPoint;
+begin
+  with imgCapac.Canvas do
+  begin
+    Brush.Color := clGray;
+    Pen.Color := clBlack;
+    FillRect(Rect(0, 0, imgCapac.Width, imgCapac.Height));
+
+    Points[0] := Point(10, 0);
+    Points[1] := Point(imgCapac.Width - 10, 0);
+    Points[2] := Point(imgCapac.Width, imgCapac.Height);
+    Points[3] := Point(0, imgCapac.Height);
+    Polygon(Points);
   end;
 end;
 
