@@ -1,7 +1,8 @@
 
-# LanternaAutoAssembler
+# Flashlight Auto Assembler
+![Delphi](https://img.shields.io/badge/Delphi-Embarcadero-red?style=flat-square)
 
-**LanternaAutoAssembler** is an automated assembly line simulator built in Delphi that visually simulates the step-by-step construction of a flashlight. The project demonstrates how individual parts (the casing, battery, LED, and cap) are assembled along a production line until a complete product is formed and exits the line.
+**Flashlight Auto Assembler** is an automated assembly line simulator built in Delphi that visually simulates the step-by-step construction of a flashlight. The project demonstrates how individual parts (the casing, battery, LED, and cap) are assembled along a production line until a complete product is formed and exits the line.
 
 ## Features
 
