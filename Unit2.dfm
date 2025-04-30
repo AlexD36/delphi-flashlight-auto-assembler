@@ -20,20 +20,20 @@ object Form2: TForm2
   end
   object shpBulb: TShape
     Left = 8
-    Top = 263
+    Top = 221
     Width = 73
     Height = 74
     Shape = stCircle
   end
   object shpCarcasa: TShape
     Left = 8
-    Top = 121
+    Top = 79
     Width = 65
     Height = 65
   end
   object shpBaterie: TShape
     Left = 8
-    Top = 192
+    Top = 150
     Width = 65
     Height = 65
   end
@@ -48,6 +48,12 @@ object Form2: TForm2
     Top = 8
     Width = 65
     Height = 65
+  end
+  object imgConveyor: TImage
+    Left = 128
+    Top = 343
+    Width = 105
+    Height = 105
   end
   object btnStart: TButton
     Left = 448
@@ -82,7 +88,12 @@ object Form2: TForm2
     Enabled = False
     Interval = 50
     OnTimer = tmrBratCTimer
-    Left = 144
-    Top = 320
+    Left = 200
+    Top = 248
+  end
+  object tmrConveyor: TTimer
+    Interval = 50
+    Left = 200
+    Top = 192
   end
 end

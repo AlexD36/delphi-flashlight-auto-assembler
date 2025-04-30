@@ -19,6 +19,8 @@ type
     shpBulb: TShape;
     shpBase: TShape;
     imgCapac: TImage;
+    imgConveyor: TImage;
+    tmrConveyor: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure btnStartClick(Sender: TObject);
     procedure tmrMainTimer(Sender: TObject);
@@ -26,11 +28,13 @@ type
     procedure tmrBratBTimer(Sender: TObject);
     procedure tmrBratCTimer(Sender: TObject);
     procedure DesenCapacTrapez;
+    procedure tmrConveyorTimer(Sender: TObject);
   private
     FStep: Integer;
     FPosEtapa1, FPosEtapa2, FPosEtapa3: Integer;
     FCenterY: Integer;
     FBaterieMontata, FLedMontat, FCapacMontat: Boolean;
+    FConveyorOffset: Integer;
   public
   end;
 
@@ -47,6 +51,7 @@ begin
   Height := 900;
   Color := clWhite;
   Position := poScreenCenter;
+  FConveyorOffset := 0;
 
   FPosEtapa1 := 400;
   FPosEtapa2 := 700;
@@ -84,6 +89,22 @@ begin
   imgCapac.Height := 20;
   imgCapac.Visible := False;
 
+  // Conveyor belt
+  imgConveyor := TImage.Create(Self);
+  imgConveyor.Parent := Self;
+  imgConveyor.Width := Width;
+  imgConveyor.Height := 60;
+  imgConveyor.Top := FCenterY + shpCarcasa.Height div 2 + 10;
+  imgConveyor.Left := 0;
+  imgConveyor.Picture.Bitmap.SetSize(imgConveyor.Width, imgConveyor.Height);
+  imgConveyor.Transparent := False;
+
+  // Conveyor animation
+  tmrConveyor := TTimer.Create(Self);
+  tmrConveyor.Interval := 50;
+  tmrConveyor.OnTimer := tmrConveyorTimer;
+  tmrConveyor.Enabled := True;
+
   // UI
   btnStart.Left := 20;
   btnStart.Top := Height - 80;
@@ -91,8 +112,33 @@ begin
   lblStatus.Top := btnStart.Top + 10;
 end;
 
+procedure TForm2.tmrConveyorTimer(Sender: TObject);
+const
+  StripeWidth = 20;
+var
+  i: Integer;
+  Canvas: TCanvas;
+begin
+  Canvas := imgConveyor.Picture.Bitmap.Canvas;
+  Canvas.Brush.Color := clSilver;
+  Canvas.FillRect(Rect(0, 0, imgConveyor.Width, imgConveyor.Height));
+
+  Canvas.Brush.Color := clGray;
+  for i := -StripeWidth to imgConveyor.Width div StripeWidth + 1 do
+    Canvas.FillRect(Rect(
+      i * StripeWidth + FConveyorOffset,
+      0,
+      i * StripeWidth + FConveyorOffset + 10,
+      imgConveyor.Height
+    ));
+
+  FConveyorOffset := (FConveyorOffset + 5) mod StripeWidth; // sincron cu lanterna (viteza +5)
+  imgConveyor.Repaint;
+end;
+
 procedure TForm2.btnStartClick(Sender: TObject);
 begin
+  tmrConveyor.Enabled := True;
   FStep := 1;
   FBaterieMontata := False;
   FLedMontat := False;
@@ -120,6 +166,7 @@ begin
 
   lblStatus.Caption := 'Carcasa se deplasează spre prima stație...';
   tmrMain.Enabled := True;
+        tmrConveyor.Enabled := True;
 end;
 
 procedure TForm2.tmrMainTimer(Sender: TObject);
@@ -143,6 +190,7 @@ begin
       if shpCarcasa.Left >= FPosEtapa1 then
       begin
         tmrMain.Enabled := False;
+        tmrConveyor.Enabled := False;
         lblStatus.Caption := 'Stație baterie.';
         shpBaterie.Visible := True;
         shpBaterie.Left := shpCarcasa.Left + 10;
@@ -153,6 +201,7 @@ begin
       if shpCarcasa.Left >= FPosEtapa2 then
       begin
         tmrMain.Enabled := False;
+        tmrConveyor.Enabled := False;
         lblStatus.Caption := 'Stație LED.';
         shpBulb.Visible := True;
         shpBase.Visible := True;
@@ -166,6 +215,7 @@ begin
       if shpCarcasa.Left >= FPosEtapa3 then
       begin
         tmrMain.Enabled := False;
+        tmrConveyor.Enabled := False;
         lblStatus.Caption := 'Stație capac.';
         imgCapac.Left := shpCarcasa.Left - 10;
         imgCapac.Top := 50;
@@ -177,6 +227,7 @@ begin
       if shpCarcasa.Left > Width then
       begin
         tmrMain.Enabled := False;
+        tmrConveyor.Enabled := False;
         lblStatus.Caption := 'Lanterna a ieșit de pe linia de producție!';
       end;
   end;
@@ -198,6 +249,7 @@ begin
 
     FStep := 2;
     tmrMain.Enabled := True;
+    tmrConveyor.Enabled := True;
   end;
 end;
 
@@ -215,6 +267,7 @@ begin
     FLedMontat := True;
     FStep := 3;
     tmrMain.Enabled := True;
+    tmrConveyor.Enabled := True;
   end;
 end;
 
@@ -229,6 +282,7 @@ begin
     FCapacMontat := True;
     FStep := 4;
     tmrMain.Enabled := True;
+    tmrConveyor.Enabled := True;
   end;
 end;
 
