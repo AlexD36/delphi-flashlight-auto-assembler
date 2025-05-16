@@ -47,6 +47,11 @@
 - **Extensions:**  
   Enhance the simulation by adding sound effects, reset functionality, or simulating multiple assembly lines.
 
+
+  ## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
 ## Contributing
 
 Contributions are welcome! Please fork this repository and submit pull requests with your improvements or new features.
